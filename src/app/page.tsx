@@ -31,19 +31,27 @@ export default function Home() {
       <CategoryGrid />
 
       {/* Action Buttons */}
-      <div className="flex gap-4 mt-10 w-full max-w-sm">
-        <button
-          onClick={handleSurprise}
-          className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
-        >
-          🎲 הפתעה!
-        </button>
+      <div className="flex flex-col gap-3 mt-8 w-full max-w-sm">
         <Link
-          href="/favorites"
-          className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 text-center"
+          href="/game"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-500 via-red-500 to-purple-500 text-white font-bold text-xl shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 text-center"
         >
-          ❤️ מועדפים
+          🎮 מצב משחק!
         </Link>
+        <div className="flex gap-3">
+          <button
+            onClick={handleSurprise}
+            className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
+          >
+            🎲 הפתעה!
+          </button>
+          <Link
+            href="/favorites"
+            className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 text-center"
+          >
+            ❤️ מועדפים
+          </Link>
+        </div>
       </div>
 
       {/* Surprise Fact */}
