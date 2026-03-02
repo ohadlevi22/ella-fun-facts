@@ -3,9 +3,10 @@
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
-import { onRoomChange, RoomData } from '@/lib/gameRoom';
+import { onRoomChange, onPlayersChange, RoomData, PlayerData } from '@/lib/gameRoom';
 import WaitingRoom from '@/components/WaitingRoom';
 import MultiplayerGame from '@/components/MultiplayerGame';
+import FinalScoreboard from '@/components/FinalScoreboard';
 import Link from 'next/link';
 
 function RoomContent() {
@@ -13,6 +14,7 @@ function RoomContent() {
   const code = searchParams.get('code');
   const { user, loading: authLoading } = useAuth();
   const [roomData, setRoomData] = useState<RoomData | null>(null);
+  const [players, setPlayers] = useState<Record<string, PlayerData>>({});
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -29,6 +31,15 @@ function RoomContent() {
         setNotFound(false);
       }
       setLoading(false);
+    });
+    return unsubscribe;
+  }, [code]);
+
+  // Subscribe to players for FinalScoreboard
+  useEffect(() => {
+    if (!code) return;
+    const unsubscribe = onPlayersChange(code, (updatedPlayers) => {
+      setPlayers(updatedPlayers);
     });
     return unsubscribe;
   }, [code]);
@@ -116,21 +127,13 @@ function RoomContent() {
   }
 
   if (roomData?.status === 'finished') {
-    // Placeholder until FinalScoreboard component (Task 11)
     return (
-      <main className="min-h-dvh flex flex-col items-center justify-center gap-4 px-6" dir="rtl">
-        <div className="text-6xl">🏆</div>
-        <h1 className="text-3xl font-black text-gray-800">המשחק נגמר!</h1>
-        <p className="text-lg text-gray-500">
-          חדר <span className="font-black" dir="ltr">{code}</span>
-        </p>
-        <Link
-          href="/multiplayer"
-          className="mt-4 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-black text-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all active:scale-95"
-        >
-          חזרה ללובי
-        </Link>
-      </main>
+      <FinalScoreboard
+        roomCode={code}
+        roomData={roomData}
+        currentUser={user}
+        players={players}
+      />
     );
   }
 
