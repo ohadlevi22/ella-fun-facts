@@ -5,6 +5,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
 import { onRoomChange, RoomData } from '@/lib/gameRoom';
 import WaitingRoom from '@/components/WaitingRoom';
+import MultiplayerGame from '@/components/MultiplayerGame';
 import Link from 'next/link';
 
 function RoomContent() {
@@ -111,16 +112,7 @@ function RoomContent() {
   }
 
   if (roomData?.status === 'playing') {
-    // Placeholder until MultiplayerGame component (Task 10)
-    return (
-      <main className="min-h-dvh flex flex-col items-center justify-center gap-4 px-6" dir="rtl">
-        <div className="text-6xl animate-bounce">🎮</div>
-        <h1 className="text-3xl font-black text-gray-800">המשחק מתחיל!</h1>
-        <p className="text-lg text-gray-500">
-          חדר <span className="font-black" dir="ltr">{code}</span>
-        </p>
-      </main>
-    );
+    return <MultiplayerGame roomCode={code} roomData={roomData} currentUser={user} />;
   }
 
   if (roomData?.status === 'finished') {
