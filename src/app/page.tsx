@@ -38,6 +38,12 @@ export default function Home() {
         >
           🎮 מצב משחק!
         </Link>
+        <Link
+          href="/multiplayer"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-bold text-xl shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 text-center"
+        >
+          👥 משחק מרובה משתתפים!
+        </Link>
         <div className="flex gap-3">
           <button
             onClick={handleSurprise}
