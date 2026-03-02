@@ -28,7 +28,7 @@ export default function GamePage() {
             >
               <span className="text-4xl block mb-1">{cat.emoji}</span>
               <span className="text-sm font-bold block">{cat.name}</span>
-              <span className="text-xs opacity-80 block mt-1">{factCount} שאלות</span>
+              <span className="text-xs opacity-80 block mt-1">{factCount} עובדות</span>
             </Link>
           );
         })}

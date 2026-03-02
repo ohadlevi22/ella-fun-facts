@@ -2,24 +2,42 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { getCategoryById, CategoryId } from '@/data/facts';
+import { getCategoryById, getFactsByCategory, CategoryId } from '@/data/facts';
 import { getQuizByCategory, getShuffledAnswers, shuffleArray, QuizQuestion } from '@/data/quiz';
 
-type GameState = 'playing' | 'answered' | 'finished';
+type GameState = 'choose-size' | 'playing' | 'answered' | 'finished';
+
+const ROUND_SIZES = [10, 20, 50];
 
 export default function GameClient({ categoryId }: { categoryId: CategoryId }) {
   const category = getCategoryById(categoryId);
-  const questions = useMemo(() => shuffleArray(getQuizByCategory(categoryId)), [categoryId]);
+  const totalFacts = getFactsByCategory(categoryId).length;
+  const [roundSize, setRoundSize] = useState<number | null>(null);
+  const questions = useMemo(() => {
+    if (!roundSize) return [];
+    return shuffleArray(getQuizByCategory(categoryId)).slice(0, roundSize);
+  }, [categoryId, roundSize]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [gameState, setGameState] = useState<GameState>('playing');
+  const [gameState, setGameState] = useState<GameState>('choose-size');
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [shuffledAnswers, setShuffledAnswers] = useState<string[]>(() =>
-    questions.length > 0 ? getShuffledAnswers(questions[0]) : []
-  );
+  const [shuffledAnswers, setShuffledAnswers] = useState<string[]>([]);
 
   const currentQuestion = questions[currentIndex] as QuizQuestion | undefined;
+
+  const startGame = useCallback((size: number) => {
+    setRoundSize(size);
+    setGameState('playing');
+    // Answers will be set via effect-like pattern after questions are computed
+  }, []);
+
+  // Set answers when questions change (after round size selection)
+  useMemo(() => {
+    if (questions.length > 0 && gameState === 'playing' && shuffledAnswers.length === 0) {
+      setShuffledAnswers(getShuffledAnswers(questions[0]));
+    }
+  }, [questions, gameState, shuffledAnswers.length]);
 
   const handleAnswer = useCallback((answer: string) => {
     if (gameState !== 'playing' || !currentQuestion) return;
@@ -44,14 +62,72 @@ export default function GameClient({ categoryId }: { categoryId: CategoryId }) {
   }, [currentIndex, questions]);
 
   const handleRestart = useCallback(() => {
+    setRoundSize(null);
     setCurrentIndex(0);
     setScore(0);
-    setGameState('playing');
+    setGameState('choose-size');
     setSelectedAnswer(null);
-    setShuffledAnswers(getShuffledAnswers(questions[0]));
-  }, [questions]);
+    setShuffledAnswers([]);
+  }, []);
 
-  if (!category || questions.length === 0 || !currentQuestion) {
+  if (!category) {
+    return (
+      <main className="min-h-dvh flex items-center justify-center px-6">
+        <div className="text-center">
+          <p className="text-2xl mb-4">🤔 לא נמצאה קטגוריה</p>
+          <Link href="/game" className="text-purple-600 underline">חזרה למשחק</Link>
+        </div>
+      </main>
+    );
+  }
+
+  // Round size selection screen
+  if (gameState === 'choose-size') {
+    return (
+      <main className="min-h-dvh px-6 py-8 flex flex-col items-center justify-center">
+        <div className="bg-white rounded-3xl shadow-xl p-8 max-w-sm w-full text-center">
+          <span className="text-6xl block mb-4">{category.emoji}</span>
+          <h1 className={`text-2xl font-black mb-2 bg-gradient-to-r ${category.gradient} bg-clip-text text-transparent`}>
+            {category.name}
+          </h1>
+          <p className="text-gray-500 mb-6">{totalFacts} עובדות זמינות</p>
+
+          <p className="text-lg font-bold text-gray-700 mb-4">כמה שאלות?</p>
+          <div className="flex flex-col gap-3">
+            {ROUND_SIZES.map((size) => (
+              <button
+                key={size}
+                onClick={() => startGame(size)}
+                className={`w-full py-4 rounded-2xl font-bold text-lg transition-all hover:scale-105 active:scale-95 ${
+                  size === 20
+                    ? `bg-gradient-to-r ${category.gradient} text-white shadow-lg`
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {size === 10 ? '⚡' : size === 20 ? '🎯' : '🔥'} {size} שאלות
+                {size === 20 && <span className="text-sm opacity-80 mr-2">(מומלץ)</span>}
+              </button>
+            ))}
+            <button
+              onClick={() => startGame(totalFacts)}
+              className="w-full py-4 rounded-2xl bg-gray-50 text-gray-500 font-bold text-lg hover:bg-gray-100 transition-all"
+            >
+              💪 כל {totalFacts} השאלות!
+            </button>
+          </div>
+
+          <Link
+            href="/game"
+            className="inline-block mt-6 text-gray-400 text-sm hover:text-gray-600 transition-colors"
+          >
+            ← חזרה לבחירת קטגוריה
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (questions.length === 0 || !currentQuestion) {
     return (
       <main className="min-h-dvh flex items-center justify-center px-6">
         <div className="text-center">
@@ -122,6 +198,8 @@ export default function GameClient({ categoryId }: { categoryId: CategoryId }) {
     );
   }
 
+  const isTrueFalse = shuffledAnswers.length === 2;
+
   return (
     <main className="min-h-dvh px-6 py-8 flex flex-col items-center">
       {/* Header */}
@@ -165,7 +243,7 @@ export default function GameClient({ categoryId }: { categoryId: CategoryId }) {
       </div>
 
       {/* Answers */}
-      <div className="w-full max-w-sm space-y-3">
+      <div className={`w-full max-w-sm ${isTrueFalse ? 'flex gap-3' : 'space-y-3'}`}>
         {shuffledAnswers.map((answer, i) => {
           const isSelected = selectedAnswer === answer;
           const isTheCorrect = answer === currentQuestion.correctAnswer;
@@ -187,20 +265,24 @@ export default function GameClient({ categoryId }: { categoryId: CategoryId }) {
               key={i}
               onClick={() => handleAnswer(answer)}
               disabled={gameState === 'answered'}
-              className={`w-full py-4 px-5 rounded-2xl font-medium text-right transition-all ${btnClass} ${
+              className={`${isTrueFalse ? 'flex-1' : 'w-full'} py-4 px-5 rounded-2xl font-medium ${isTrueFalse ? 'text-center' : 'text-right'} transition-all ${btnClass} ${
                 gameState === 'playing' ? 'active:scale-95 hover:scale-[1.02]' : ''
               }`}
             >
-              <span className="flex items-center gap-3">
-                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
-                  showResult && isTheCorrect ? 'bg-green-400 text-white' :
-                  showResult && isSelected && !isCorrect ? 'bg-red-400 text-white' :
-                  'bg-gray-200 text-gray-500'
-                }`}>
-                  {showResult && isTheCorrect ? '✓' : showResult && isSelected && !isCorrect ? '✗' : letters[i]}
+              {isTrueFalse ? (
+                <span className="text-lg">{answer}</span>
+              ) : (
+                <span className="flex items-center gap-3">
+                  <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                    showResult && isTheCorrect ? 'bg-green-400 text-white' :
+                    showResult && isSelected && !isCorrect ? 'bg-red-400 text-white' :
+                    'bg-gray-200 text-gray-500'
+                  }`}>
+                    {showResult && isTheCorrect ? '✓' : showResult && isSelected && !isCorrect ? '✗' : letters[i]}
+                  </span>
+                  <span>{answer}</span>
                 </span>
-                <span>{answer}</span>
-              </span>
+              )}
             </button>
           );
         })}

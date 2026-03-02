@@ -145,8 +145,54 @@ function generateCategoryQuestion(fact: Fact): QuizQuestion {
   };
 }
 
-function buildQuizQuestion(fact: Fact): QuizQuestion {
-  // Try number-based question first
+function generateTrueFalseQuestion(fact: Fact): QuizQuestion | null {
+  const rng = seededRandom(fact.id * 13 + 47);
+
+  // 50% chance: show the real fact (answer: נכון), 50%: show modified (answer: לא נכון)
+  const showReal = rng() > 0.5;
+
+  if (showReal) {
+    return {
+      id: fact.id,
+      question: `נכון או לא? ${truncate(fact.text, 80)}`,
+      correctAnswer: 'נכון! ✅',
+      wrongAnswers: ['לא נכון ❌'],
+      emoji: fact.emoji,
+      factId: fact.id,
+    };
+  }
+
+  // Modify the fact to make it false
+  const modified = modifyFactNumber(fact.text, rng);
+  if (!modified) return null;
+
+  return {
+    id: fact.id,
+    question: `נכון או לא? ${truncate(modified, 80)}`,
+    correctAnswer: 'לא נכון ❌',
+    wrongAnswers: ['נכון! ✅'],
+    emoji: fact.emoji,
+    factId: fact.id,
+  };
+}
+
+function buildQuizQuestion(fact: Fact, questionIndex: number): QuizQuestion {
+  // Rotate between question types based on index for variety
+  const typeSelector = questionIndex % 3;
+
+  if (typeSelector === 0) {
+    // Try number-based question first
+    const numberQ = generateNumberQuestion(fact);
+    if (numberQ) return numberQ;
+  }
+
+  if (typeSelector === 1) {
+    // Try true/false
+    const tfQ = generateTrueFalseQuestion(fact);
+    if (tfQ) return tfQ;
+  }
+
+  // Try number question as second attempt
   const numberQ = generateNumberQuestion(fact);
   if (numberQ) return numberQ;
 
@@ -154,9 +200,13 @@ function buildQuizQuestion(fact: Fact): QuizQuestion {
   return generateCategoryQuestion(fact);
 }
 
-export function getQuizByCategory(categoryId: CategoryId): QuizQuestion[] {
+export function getQuizByCategory(categoryId: CategoryId, limit?: number): QuizQuestion[] {
   const categoryFacts = getFactsByCategory(categoryId);
-  return categoryFacts.map(buildQuizQuestion);
+  const questions = categoryFacts.map((fact, i) => buildQuizQuestion(fact, i));
+  if (limit && limit < questions.length) {
+    return shuffleArray(questions).slice(0, limit);
+  }
+  return questions;
 }
 
 export function shuffleArray<T>(array: T[]): T[] {
