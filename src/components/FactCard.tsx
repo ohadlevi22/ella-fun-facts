@@ -9,9 +9,10 @@ interface FactCardProps {
   onToggleFavorite: (id: number) => void;
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
+  onLearnMore?: () => void;
 }
 
-export default function FactCard({ fact, isFavorite, onToggleFavorite, onSwipeLeft, onSwipeRight }: FactCardProps) {
+export default function FactCard({ fact, isFavorite, onToggleFavorite, onSwipeLeft, onSwipeRight, onLearnMore }: FactCardProps) {
   const [swipeX, setSwipeX] = useState(0);
   const [swiping, setSwiping] = useState(false);
   const [heartAnim, setHeartAnim] = useState(false);
@@ -82,6 +83,16 @@ export default function FactCard({ fact, isFavorite, onToggleFavorite, onSwipeLe
         <p className="text-lg md:text-xl text-center leading-relaxed text-gray-700 font-medium px-2">
           {fact.text}
         </p>
+
+        {/* Learn more button */}
+        {onLearnMore && (
+          <button
+            onClick={onLearnMore}
+            className="px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
+          >
+            🔍 ספרי לי עוד!
+          </button>
+        )}
 
         {/* Swipe hint arrows */}
         {swipeX < -20 && (

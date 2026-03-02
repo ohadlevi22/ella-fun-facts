@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import FactCard from '@/components/FactCard';
 import ProgressDots from '@/components/ProgressDots';
+import LearnMorePanel from '@/components/LearnMorePanel';
 import { getFactsByCategory, getCategoryById, CategoryId } from '@/data/facts';
 import { useFavorites } from '@/hooks/useFavorites';
 
@@ -12,6 +13,7 @@ export default function CategoryPageClient({ categoryId }: { categoryId: Categor
   const categoryFacts = getFactsByCategory(categoryId);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animClass, setAnimClass] = useState('');
+  const [learnMoreFact, setLearnMoreFact] = useState<typeof categoryFacts[0] | null>(null);
   const { isFavorite, toggleFavorite } = useFavorites();
 
   const goToNext = useCallback(() => {
@@ -82,6 +84,7 @@ export default function CategoryPageClient({ categoryId }: { categoryId: Categor
           onToggleFavorite={toggleFavorite}
           onSwipeLeft={goToNext}
           onSwipeRight={goToPrev}
+          onLearnMore={() => setLearnMoreFact(currentFact)}
         />
       </div>
 
@@ -122,6 +125,13 @@ export default function CategoryPageClient({ categoryId }: { categoryId: Categor
           ❤️ מועדפים
         </Link>
       </div>
+
+      {learnMoreFact && (
+        <LearnMorePanel
+          fact={learnMoreFact}
+          onClose={() => setLearnMoreFact(null)}
+        />
+      )}
     </main>
   );
 }
