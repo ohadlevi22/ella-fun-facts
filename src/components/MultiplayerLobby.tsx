@@ -13,7 +13,7 @@ const ROUND_OPTIONS = [5, 10, 15] as const;
 
 export default function MultiplayerLobby() {
   const router = useRouter();
-  const { user, loading, signIn, logOut } = useAuth();
+  const { user, loading, error: authError, signIn, logOut } = useAuth();
   const [view, setView] = useState<LobbyView>('lobby');
 
   // Create room state
@@ -185,6 +185,9 @@ export default function MultiplayerLobby() {
                 </svg>
                 התחברי עם Google
               </button>
+              {authError && (
+                <p className="mt-3 text-red-500 text-sm text-center">{authError}</p>
+              )}
             </div>
           ) : (
             /* Signed-in lobby */
