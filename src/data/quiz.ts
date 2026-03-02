@@ -1,4 +1,4 @@
-import { facts, getFactsByCategory, getCategoryById, CategoryId, Fact } from './facts';
+import { facts, getFactsByCategory, CategoryId, Fact } from './facts';
 
 export interface QuizQuestion {
   id: number;
@@ -78,30 +78,68 @@ function formatNumber(num: number): string {
   return num.toLocaleString('he-IL');
 }
 
+function truncate(text: string, max: number = 60): string {
+  const clean = text.replace(/[.!]$/, '');
+  if (clean.length <= max) return clean;
+  return clean.slice(0, max).replace(/\s+\S*$/, '') + '...';
+}
+
+// Modify a fact's number to create a plausible but false version
+function modifyFactNumber(text: string, rng: () => number): string | null {
+  const numberMatch = text.match(/(\d[\d,.]*)/);
+  if (!numberMatch) return null;
+
+  const original = numberMatch[1];
+  const num = parseFloat(original.replace(/,/g, ''));
+  if (isNaN(num) || num === 0) return null;
+
+  const multipliers = [0.25, 0.33, 0.5, 2, 3, 4, 5];
+  const idx = Math.floor(rng() * multipliers.length);
+  const wrongNum = Math.max(1, Math.round(num * multipliers[idx]));
+
+  if (wrongNum === num) return null;
+
+  return text.replace(original, formatNumber(wrongNum));
+}
+
 function generateCategoryQuestion(fact: Fact): QuizQuestion {
-  const category = getCategoryById(fact.category);
-  const categoryName = category?.name || '';
   const rng = seededRandom(fact.id * 7 + 31);
+  const correctText = truncate(fact.text);
+  const wrongAnswers: string[] = [];
 
-  // Get facts from OTHER categories for wrong answers
-  const otherFacts = facts.filter(f => f.category !== fact.category);
+  // Get facts from SAME category - modify their numbers to make them false
+  const sameCategoryFacts = facts.filter(f => f.category === fact.category && f.id !== fact.id);
+  const shuffledSame = [...sameCategoryFacts].sort(() => rng() - 0.5);
 
-  // Pick 3 random wrong facts deterministically
-  const shuffled = [...otherFacts].sort(() => rng() - 0.5);
-  const wrongFacts = shuffled.slice(0, 3);
+  for (const f of shuffledSame) {
+    if (wrongAnswers.length >= 3) break;
+    const modified = modifyFactNumber(f.text, rng);
+    if (modified) {
+      const truncated = truncate(modified);
+      if (truncated !== correctText) {
+        wrongAnswers.push(truncated);
+      }
+    }
+  }
 
-  // Truncate long facts for readability
-  const truncate = (text: string, max: number = 60) => {
-    const clean = text.replace(/[.!]$/, '');
-    if (clean.length <= max) return clean;
-    return clean.slice(0, max).replace(/\s+\S*$/, '') + '...';
-  };
+  // Fallback: modify facts from other categories if needed
+  if (wrongAnswers.length < 3) {
+    const otherFacts = facts.filter(f => f.category !== fact.category);
+    const shuffledOther = [...otherFacts].sort(() => rng() - 0.5);
+    for (const f of shuffledOther) {
+      if (wrongAnswers.length >= 3) break;
+      const modified = modifyFactNumber(f.text, rng);
+      if (modified) {
+        wrongAnswers.push(truncate(modified));
+      }
+    }
+  }
 
   return {
     id: fact.id,
-    question: `איזו עובדה נכונה על ${categoryName}?`,
-    correctAnswer: truncate(fact.text),
-    wrongAnswers: wrongFacts.map(f => truncate(f.text)),
+    question: 'איזו עובדה נכונה?',
+    correctAnswer: correctText,
+    wrongAnswers: wrongAnswers.slice(0, 3),
     emoji: fact.emoji,
     factId: fact.id,
   };
