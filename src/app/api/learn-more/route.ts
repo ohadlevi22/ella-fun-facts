@@ -18,7 +18,7 @@ async function generateExplanation(factText: string, emoji: string): Promise<{
   bonusFacts: string[];
   youtubeSearchQuery: string;
 }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   const prompt = `אתה מורה מדעים מהנה שמסביר לילדה בת 10 בשם אלה.
 היא קראה את העובדה הזו: ${emoji} ${factText}
