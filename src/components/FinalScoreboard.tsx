@@ -122,11 +122,12 @@ export default function FinalScoreboard({
         questionStartedAt: null,
       });
 
-      // Reset all player scores/streaks
-      const playerUpdates: Record<string, number> = {};
+      // Reset all player scores/streaks and clear old answers
+      const playerUpdates: Record<string, number | null> = {};
       for (const uid of Object.keys(players)) {
         playerUpdates[`players/${uid}/score`] = 0;
         playerUpdates[`players/${uid}/streak`] = 0;
+        playerUpdates[`players/${uid}/answers`] = null;
       }
       await update(roomRef, playerUpdates);
     } catch (error) {
