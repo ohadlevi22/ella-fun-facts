@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Fact } from '@/data/facts';
+import { Fact, getCategoryById } from '@/data/facts';
 
 interface LearnMoreData {
   whyItsCool: string;
@@ -46,6 +46,7 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
   const [error, setError] = useState(false);
   const [visible, setVisible] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const category = getCategoryById(fact.category);
 
   // Animate in
   useEffect(() => {
@@ -93,48 +94,47 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
   return (
     <div
       className={`fixed inset-0 z-50 flex items-end justify-center transition-colors duration-300 ${
-        visible ? 'bg-black/40' : 'bg-transparent'
+        visible ? 'bg-black/50' : 'bg-transparent'
       }`}
       onClick={handleBackdropClick}
     >
       <div
         ref={panelRef}
-        className={`w-full max-w-lg bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out ${
+        className={`w-full max-w-lg bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out overflow-hidden ${
           visible ? 'translate-y-0' : 'translate-y-full'
         }`}
-        style={{ maxHeight: '85vh' }}
+        style={{ maxHeight: '88vh' }}
       >
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1.5 bg-gray-300 rounded-full" />
-        </div>
-
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors text-xl"
-        >
-          ✕
-        </button>
-
-        {/* Content */}
-        <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 60px)' }}>
-          {/* Header */}
-          <div className="text-center mb-6">
-            <span className="text-4xl block mb-2">{fact.emoji}</span>
-            <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{fact.text}</p>
+        {/* Header with gradient */}
+        <div className={`relative bg-gradient-to-br ${category?.gradient || 'from-purple-500 to-pink-500'} px-6 pt-4 pb-6`}>
+          {/* Drag handle */}
+          <div className="flex justify-center mb-3">
+            <div className="w-10 h-1.5 bg-white/40 rounded-full" />
           </div>
 
+          {/* Close button */}
+          <button
+            onClick={handleClose}
+            className="absolute top-4 left-4 w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-colors text-lg"
+          >
+            ✕
+          </button>
+
+          <div className="text-center text-white">
+            <span className="text-5xl block mb-2 drop-shadow-sm">{fact.emoji}</span>
+            <p className="text-sm opacity-90 leading-relaxed line-clamp-2 max-w-xs mx-auto">{fact.text}</p>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="px-5 pb-8 pt-5 overflow-y-auto" style={{ maxHeight: 'calc(88vh - 140px)' }}>
           {/* Loading */}
           {loading && (
-            <div className="space-y-4 animate-pulse">
-              <p className="text-center text-gray-400 text-lg font-bold">🔍 מחפשת...</p>
-              <div className="h-4 bg-gray-200 rounded-full w-full" />
-              <div className="h-4 bg-gray-200 rounded-full w-5/6" />
-              <div className="h-4 bg-gray-200 rounded-full w-4/6" />
-              <div className="h-32 bg-gray-200 rounded-2xl w-full mt-4" />
-              <div className="h-4 bg-gray-200 rounded-full w-3/4" />
-              <div className="h-4 bg-gray-200 rounded-full w-5/6" />
+            <div className="space-y-3">
+              <p className="text-center text-gray-400 text-base font-bold mb-4">🔍 מחפשת מידע...</p>
+              <div className="shimmer h-24 rounded-2xl" />
+              <div className="shimmer h-28 rounded-2xl" />
+              <div className="shimmer h-20 rounded-2xl" />
             </div>
           )}
 
@@ -153,32 +153,44 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
             </div>
           )}
 
-          {/* Content */}
+          {/* Sections */}
           {data && !loading && (
-            <div className="space-y-4">
+            <div className="section-stagger space-y-3">
               {/* Why it's cool */}
-              <div className="bg-purple-50 rounded-2xl p-4">
-                <h3 className="text-base font-black text-purple-600 mb-2">🤩 למה זה מדהים?</h3>
-                <p className="text-gray-700 leading-relaxed">{data.whyItsCool}</p>
+              <div className="rounded-2xl p-4 bg-purple-50 border border-purple-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-base">🤩</span>
+                  <h3 className="text-sm font-black text-purple-700">למה זה מדהים?</h3>
+                </div>
+                <p className="text-gray-700 leading-relaxed text-sm">{data.whyItsCool}</p>
               </div>
 
               {/* How it works */}
-              <div className="bg-blue-50 rounded-2xl p-4">
-                <h3 className="text-base font-black text-blue-600 mb-2">🔬 איך זה עובד?</h3>
-                <p className="text-gray-700 leading-relaxed">{data.howItWorks}</p>
+              <div className="rounded-2xl p-4 bg-sky-50 border border-sky-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-base">🔬</span>
+                  <h3 className="text-sm font-black text-sky-700">איך זה עובד?</h3>
+                </div>
+                <p className="text-gray-700 leading-relaxed text-sm">{data.howItWorks}</p>
               </div>
 
               {/* Fun comparison */}
-              <div className="bg-green-50 rounded-2xl p-4">
-                <h3 className="text-base font-black text-green-600 mb-2">🎯 תדמיינו ש...</h3>
-                <p className="text-gray-700 leading-relaxed">{data.funComparison}</p>
+              <div className="rounded-2xl p-4 bg-emerald-50 border border-emerald-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-base">🎯</span>
+                  <h3 className="text-sm font-black text-emerald-700">תדמיינו ש...</h3>
+                </div>
+                <p className="text-gray-700 leading-relaxed text-sm">{data.funComparison}</p>
               </div>
 
               {/* YouTube video */}
               {data.youtubeVideoId && (
                 <div>
-                  <h3 className="text-base font-black text-red-500 mb-3">🎬 סרטון</h3>
-                  <div className="relative w-full rounded-2xl overflow-hidden shadow-lg" style={{ paddingBottom: '56.25%' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-base">🎬</span>
+                    <h3 className="text-sm font-black text-red-600">צפו בסרטון</h3>
+                  </div>
+                  <div className="relative w-full rounded-2xl overflow-hidden shadow-md" style={{ paddingBottom: '56.25%' }}>
                     <iframe
                       className="absolute inset-0 w-full h-full"
                       src={`https://www.youtube.com/embed/${data.youtubeVideoId}`}
@@ -188,7 +200,7 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
                     />
                   </div>
                   {data.youtubeTitle && (
-                    <p className="text-xs text-gray-400 mt-2 text-center">{data.youtubeTitle}</p>
+                    <p className="text-xs text-gray-400 mt-1.5 text-center">{data.youtubeTitle}</p>
                   )}
                 </div>
               )}
@@ -196,12 +208,15 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
               {/* Bonus facts */}
               {data.bonusFacts.length > 0 && (
                 <div>
-                  <h3 className="text-base font-black text-amber-500 mb-3">✨ עוד עובדות מעניינות</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-base">✨</span>
+                    <h3 className="text-sm font-black text-amber-600">עוד עובדות מעניינות</h3>
+                  </div>
                   <ul className="space-y-2">
                     {data.bonusFacts.map((bonus, i) => (
-                      <li key={i} className="flex gap-2 bg-amber-50 rounded-xl p-3 text-gray-700">
+                      <li key={i} className="flex gap-2.5 bg-amber-50 border border-amber-100 rounded-xl p-3 text-gray-700 text-sm">
                         <span className="text-amber-500 flex-shrink-0">💡</span>
-                        <span>{bonus}</span>
+                        <span className="leading-relaxed">{bonus}</span>
                       </li>
                     ))}
                   </ul>

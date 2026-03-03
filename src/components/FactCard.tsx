@@ -61,37 +61,39 @@ export default function FactCard({ fact, isFavorite, onToggleFavorite, onSwipeLe
         transition: swiping ? 'none' : 'all 0.3s ease',
       }}
     >
-      <div className={`relative overflow-hidden rounded-3xl bg-white shadow-xl p-8 min-h-[320px] flex flex-col items-center justify-center gap-6`}>
-        {/* Category badge */}
-        <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-white text-xs font-bold bg-gradient-to-r ${category?.gradient}`}>
-          {category?.emoji} {category?.name}
+      <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl min-h-[300px] flex flex-col">
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-0">
+          <div className={`px-3 py-1 rounded-full text-white text-xs font-bold bg-gradient-to-r ${category?.gradient}`}>
+            {category?.emoji} {category?.name}
+          </div>
+          <button
+            onClick={handleFavorite}
+            className={`text-2xl fav-btn ${isFavorite ? 'active' : 'text-gray-300'} ${heartAnim ? 'animate-heart' : ''}`}
+            aria-label={isFavorite ? 'הסר ממועדפים' : 'הוסף למועדפים'}
+          >
+            {isFavorite ? '❤️' : '🤍'}
+          </button>
         </div>
 
-        {/* Favorite button */}
-        <button
-          onClick={handleFavorite}
-          className={`absolute top-4 right-4 text-3xl fav-btn ${isFavorite ? 'active' : 'text-gray-300'} ${heartAnim ? 'animate-heart' : ''}`}
-          aria-label={isFavorite ? 'הסר ממועדפים' : 'הוסף למועדפים'}
-        >
-          {isFavorite ? '❤️' : '🤍'}
-        </button>
-
-        {/* Emoji */}
-        <span className="text-7xl animate-float">{fact.emoji}</span>
-
-        {/* Fact text */}
-        <p className="text-lg md:text-xl text-center leading-relaxed text-gray-700 font-medium px-2">
-          {fact.text}
-        </p>
+        {/* Content */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-5 px-7 py-6">
+          <span className="text-6xl animate-float">{fact.emoji}</span>
+          <p className="text-lg md:text-xl text-center leading-relaxed text-gray-700 font-medium">
+            {fact.text}
+          </p>
+        </div>
 
         {/* Learn more button */}
         {onLearnMore && (
-          <button
-            onClick={onLearnMore}
-            className="px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
-          >
-            🔍 ספרי לי עוד!
-          </button>
+          <div className="px-5 pb-5">
+            <button
+              onClick={onLearnMore}
+              className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              🔍 ספרו לי עוד!
+            </button>
+          </div>
         )}
 
         {/* Swipe hint arrows */}
