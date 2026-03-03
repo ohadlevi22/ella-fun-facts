@@ -20,8 +20,8 @@ async function generateExplanation(factText: string, emoji: string): Promise<{
 }> {
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-  const prompt = `אתה מורה מדעים מהנה שמסביר לילדה בת 10 בשם אלה.
-היא קראה את העובדה הזו: ${emoji} ${factText}
+  const prompt = `אתה מורה מדעים מהנה שמסביר לילדות בנות 10-13 בשם אלה ושקד.
+הן קראו את העובדה הזו: ${emoji} ${factText}
 
 כתוב תשובה בפורמט JSON בלבד (בלי markdown, בלי backticks):
 {

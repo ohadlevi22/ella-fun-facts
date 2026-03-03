@@ -20,7 +20,7 @@ export default function Home() {
       {/* Header */}
       <div className="text-center mb-10">
         <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-purple-600 via-pink-500 to-amber-500 bg-clip-text text-transparent mb-3 leading-tight">
-          היי אלה! ✨
+          היי אלה ושקד! ✨
         </h1>
         <p className="text-xl text-gray-600">
           ברוכה הבאה לעולם העובדות המגניבות!
@@ -79,7 +79,7 @@ export default function Home() {
 
       {/* Footer */}
       <p className="mt-12 text-sm text-gray-400">
-        נבנה עם 💜 עבור אלה
+        נבנה עם 💜 עבור אלה ושקד
       </p>
     </main>
   );

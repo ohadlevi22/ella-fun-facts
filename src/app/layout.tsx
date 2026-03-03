@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "העובדות המגניבות של אלה ✨",
+  title: "העובדות המגניבות של אלה ושקד ✨",
   description: "עובדות מדהימות על חלל, טבע, חיות, כלי רכב, מטוסים וספינות!",
 };
 
