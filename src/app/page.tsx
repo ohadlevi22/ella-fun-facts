@@ -41,12 +41,6 @@ export default function Home() {
         >
           🎮 משחק!
         </Link>
-        <Link
-          href="/multiplayer"
-          className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 text-center"
-        >
-          👥 רב משתתפים
-        </Link>
       </div>
 
       {/* Secondary actions */}
