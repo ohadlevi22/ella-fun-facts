@@ -3,7 +3,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "העובדות המגניבות של אלה ושקד ✨",
+  title: "העובדות המגניבות ✨",
   description: "עובדות מדהימות על חלל, טבע, חיות, כלי רכב, מטוסים וספינות!",
 };
 

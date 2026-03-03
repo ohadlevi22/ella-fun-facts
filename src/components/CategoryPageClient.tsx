@@ -7,6 +7,7 @@ import ProgressDots from '@/components/ProgressDots';
 import LearnMorePanel from '@/components/LearnMorePanel';
 import { getFactsByCategory, getCategoryById, CategoryId } from '@/data/facts';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useNames } from '@/hooks/useNames';
 
 export default function CategoryPageClient({ categoryId }: { categoryId: CategoryId }) {
   const category = getCategoryById(categoryId);
@@ -15,6 +16,7 @@ export default function CategoryPageClient({ categoryId }: { categoryId: Categor
   const [animClass, setAnimClass] = useState('');
   const [learnMoreFact, setLearnMoreFact] = useState<typeof categoryFacts[0] | null>(null);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { names } = useNames();
 
   const goToNext = useCallback(() => {
     if (currentIndex < categoryFacts.length - 1) {
@@ -130,6 +132,7 @@ export default function CategoryPageClient({ categoryId }: { categoryId: Categor
         <LearnMorePanel
           fact={learnMoreFact}
           onClose={() => setLearnMoreFact(null)}
+          names={names}
         />
       )}
     </main>

@@ -15,7 +15,7 @@ interface LearnMoreResponse {
   youtubeTitle: string | null;
 }
 
-async function generateExplanation(factText: string, emoji: string): Promise<{
+async function generateExplanation(factText: string, emoji: string, names: string): Promise<{
   whyItsCool: string;
   howItWorks: string;
   funComparison: string;
@@ -24,8 +24,8 @@ async function generateExplanation(factText: string, emoji: string): Promise<{
 }> {
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
-  const prompt = `אתה מורה מדעים מהנה שמסביר לילדות בנות 10-13 בשם אלה ושקד.
-הן קראו את העובדה הזו: ${emoji} ${factText}
+  const prompt = `אתה מורה מדעים מהנה שמסביר לילדים בשם ${names}.
+הם קראו את העובדה הזו: ${emoji} ${factText}
 
 כתוב תשובה בפורמט JSON בלבד (בלי markdown, בלי backticks):
 {
@@ -79,6 +79,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const factText = searchParams.get('text');
   const emoji = searchParams.get('emoji') || '';
+  const names = searchParams.get('names') || 'חברים';
 
   if (!factText) {
     return NextResponse.json({ error: 'Missing text parameter' }, { status: 400 });
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const geminiResult = await generateExplanation(factText, emoji);
+    const geminiResult = await generateExplanation(factText, emoji, names);
     const youtubeResult = await searchYouTube(geminiResult.youtubeSearchQuery);
 
     const response: LearnMoreResponse = {

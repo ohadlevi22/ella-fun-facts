@@ -15,6 +15,7 @@ interface LearnMoreData {
 interface LearnMorePanelProps {
   fact: Fact;
   onClose: () => void;
+  names?: string | null;
 }
 
 function getCacheKey(factId: number): string {
@@ -40,7 +41,7 @@ function setCache(factId: number, data: LearnMoreData): void {
   } catch {}
 }
 
-export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
+export default function LearnMorePanel({ fact, onClose, names }: LearnMorePanelProps) {
   const [data, setData] = useState<LearnMoreData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -71,6 +72,7 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
 
     try {
       const params = new URLSearchParams({ text: fact.text, emoji: fact.emoji });
+      if (names) params.set('names', names);
       const res = await fetch(`/api/learn-more?${params}`);
       if (!res.ok) throw new Error('API error');
       const result: LearnMoreData = await res.json();
@@ -81,7 +83,7 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
     } finally {
       setLoading(false);
     }
-  }, [fact.id, fact.text, fact.emoji]);
+  }, [fact.id, fact.text, fact.emoji, names]);
 
   useEffect(() => {
     fetchData();
