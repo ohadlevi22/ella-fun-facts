@@ -22,7 +22,7 @@ async function generateExplanation(factText: string, emoji: string): Promise<{
   bonusFacts: string[];
   youtubeSearchQuery: string;
 }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
   const prompt = `אתה מורה מדעים מהנה שמסביר לילדות בנות 10-13 בשם אלה ושקד.
 הן קראו את העובדה הזו: ${emoji} ${factText}
