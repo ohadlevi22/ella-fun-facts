@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Fact } from '@/data/facts';
 
 interface LearnMoreData {
-  explanation: string;
+  whyItsCool: string;
+  howItWorks: string;
+  funComparison: string;
   bonusFacts: string[];
   youtubeVideoId: string | null;
   youtubeTitle: string | null;
@@ -22,7 +24,11 @@ function getCacheKey(factId: number): string {
 function getCached(factId: number): LearnMoreData | null {
   try {
     const raw = localStorage.getItem(getCacheKey(factId));
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    // Invalidate old format cache entries
+    if (!parsed.whyItsCool) return null;
+    return parsed;
   } catch {
     return null;
   }
@@ -149,15 +155,29 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
 
           {/* Content */}
           {data && !loading && (
-            <>
-              <div className="mb-6">
-                <h3 className="text-lg font-black text-purple-600 mb-3">📖 הסבר</h3>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">{data.explanation}</div>
+            <div className="space-y-4">
+              {/* Why it's cool */}
+              <div className="bg-purple-50 rounded-2xl p-4">
+                <h3 className="text-base font-black text-purple-600 mb-2">🤩 למה זה מדהים?</h3>
+                <p className="text-gray-700 leading-relaxed">{data.whyItsCool}</p>
               </div>
 
+              {/* How it works */}
+              <div className="bg-blue-50 rounded-2xl p-4">
+                <h3 className="text-base font-black text-blue-600 mb-2">🔬 איך זה עובד?</h3>
+                <p className="text-gray-700 leading-relaxed">{data.howItWorks}</p>
+              </div>
+
+              {/* Fun comparison */}
+              <div className="bg-green-50 rounded-2xl p-4">
+                <h3 className="text-base font-black text-green-600 mb-2">🎯 תדמיינו ש...</h3>
+                <p className="text-gray-700 leading-relaxed">{data.funComparison}</p>
+              </div>
+
+              {/* YouTube video */}
               {data.youtubeVideoId && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-black text-red-500 mb-3">🎬 סרטון</h3>
+                <div>
+                  <h3 className="text-base font-black text-red-500 mb-3">🎬 סרטון</h3>
                   <div className="relative w-full rounded-2xl overflow-hidden shadow-lg" style={{ paddingBottom: '56.25%' }}>
                     <iframe
                       className="absolute inset-0 w-full h-full"
@@ -173,9 +193,10 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
                 </div>
               )}
 
+              {/* Bonus facts */}
               {data.bonusFacts.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-black text-amber-500 mb-3">✨ עוד עובדות מעניינות</h3>
+                  <h3 className="text-base font-black text-amber-500 mb-3">✨ עוד עובדות מעניינות</h3>
                   <ul className="space-y-2">
                     {data.bonusFacts.map((bonus, i) => (
                       <li key={i} className="flex gap-2 bg-amber-50 rounded-xl p-3 text-gray-700">
@@ -186,7 +207,7 @@ export default function LearnMorePanel({ fact, onClose }: LearnMorePanelProps) {
                   </ul>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>

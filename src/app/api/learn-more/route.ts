@@ -7,14 +7,18 @@ const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || '';
 const YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search';
 
 interface LearnMoreResponse {
-  explanation: string;
+  whyItsCool: string;
+  howItWorks: string;
+  funComparison: string;
   bonusFacts: string[];
   youtubeVideoId: string | null;
   youtubeTitle: string | null;
 }
 
 async function generateExplanation(factText: string, emoji: string): Promise<{
-  explanation: string;
+  whyItsCool: string;
+  howItWorks: string;
+  funComparison: string;
   bonusFacts: string[];
   youtubeSearchQuery: string;
 }> {
@@ -25,7 +29,9 @@ async function generateExplanation(factText: string, emoji: string): Promise<{
 
 כתוב תשובה בפורמט JSON בלבד (בלי markdown, בלי backticks):
 {
-  "explanation": "הסבר מפורט בעברית ב-3-4 פסקאות. תשתמש בשפה פשוטה וכיפית עם אימוג'ים. תסביר למה זה מעניין ואיך זה עובד.",
+  "whyItsCool": "2-3 משפטים בעברית - למה העובדה הזו מדהימה ומעניינת? תשתמש בשפה נלהבת עם אימוג'ים",
+  "howItWorks": "3-4 משפטים בעברית - איך זה עובד? ההסבר המדעי בשפה פשוטה וברורה עם אימוג'ים",
+  "funComparison": "1-2 משפטים בעברית - השוואה מצחיקה או מפתיעה שעוזרת להבין את הגודל/המשמעות. למשל: 'זה כאילו...' או 'תדמיינו ש...'",
   "bonusFacts": ["עובדה מעניינת נוספת 1", "עובדה מעניינת נוספת 2", "עובדה מעניינת נוספת 3"],
   "youtubeSearchQuery": "English search query to find a YouTube video explaining this topic for kids"
 }`;
@@ -87,7 +93,9 @@ export async function GET(request: NextRequest) {
     const youtubeResult = await searchYouTube(geminiResult.youtubeSearchQuery);
 
     const response: LearnMoreResponse = {
-      explanation: geminiResult.explanation,
+      whyItsCool: geminiResult.whyItsCool,
+      howItWorks: geminiResult.howItWorks,
+      funComparison: geminiResult.funComparison,
       bonusFacts: geminiResult.bonusFacts,
       youtubeVideoId: youtubeResult?.videoId || null,
       youtubeTitle: youtubeResult?.title || null,
